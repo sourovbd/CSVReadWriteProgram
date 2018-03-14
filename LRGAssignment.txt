@@ -1,0 +1,177 @@
+************************ Input:  'ShareNumber'   ************************
+=IFERROR(VLOOKUP($A20,Price!A:B,2,0),0)     =IF(Multiplier!AW20="",ShareNumber!AW20,ShareNumber!AW20*(1+Multiplier!AW20))
+************************ Input:  'CDividend'   ************************
+=IFERROR(VLOOKUP($A2,Price!A:B,2,0),0)
+************************ Input:  'Multiplier'   ************************
+=IFERROR(VLOOKUP($A2,Price!A:B,2,0),0)
+************************ Input:  'RightP'   ************************
+=VLOOKUP($A371,Price!A:B,2,0)
+
+************************ intermediate calculations:  'AdjDiv'   ************************
+=IFERROR(VLOOKUP($A3,Price!A:B,2,0),0)   =IFERROR(ShareNumber!AX3*CDividend!AX3,0)
+************************ intermediate calculations:  'AdjRight'   ************************
+=IFERROR(VLOOKUP($A3,Price!A:B,2,0),0)   =IFERROR(ShareNumber!AX3*Multiplier!AX3*RightP!AX3,0)
+************************ intermediate calculations:  'MCap'   ************************
+=IFERROR(VLOOKUP($A3,Price!A:B,2,0),0)   =IFERROR(Price!CGJ3*ShareNumber!AX3,0)
+************************ intermediate calculations:  'TDivisor'   ************************
+=VLOOKUP($A3,Price!A:B,2,0)   =IFERROR(AV3*((MCap!AW3-AdjDiv!AW3+AdjRight!AW3)/MCap!AW3),0)
+************************ intermediate calculations:  'TReturn'   ************************
+=VLOOKUP($A2,Price!A:B,2,0)   =IFERROR(MCap!AX2/TDivisor!AW2,AW2)
+
+************************ final calculations:  'Index&Vol'   ************************
+Ticker	Change      =IF(HOUR(NOW())<10,TODAY()-1,TODAY())                                                   
+=A8&" Market Cap"	=SUMIF(MCap!$B$2:$B$356,$A8,MCap!AX$2:AX$356)
+Divisor				=AW3*((AW2+AW7)/AW2)
+Entry				=SUM((MCap!$B$2:$B$356='Index&Vol'!$A8)*(MCap!AX$2:AX$356=0)*(MCap!AY$2:AY$356<>0)*(MCap!AY$2:AY$356))
+Cash Dividend		=SUMIF(AdjDiv!$B$2:$B$356,$A8,AdjDiv!AX$2:AX$356)
+Right Share			=SUMIF(AdjRight!$B$2:$B$356,$A8,AdjRight!AX$2:AX$356)
+Adjustments			=AX4+AX6-AX5
+Bank	=VLOOKUP($A8,8:8,MATCH(MAX($1:$1),$1:$1,0),0)/VLOOKUP($A8,8:8,MATCH(MAX($1:$1),$1:$1,0)-1,0)-1 =AX2/AX3
+	
+=A16&" Market Cap"	=SUMIF(MCap!$B$2:$B$356,$A16,MCap!AX$2:AX$356)
+Divisor				=AW11*((AW10+AW15)/AW10)
+Entry				=SUM((MCap!$B$2:$B$356='Index&Vol'!$A16)*(MCap!AX$2:AX$356=0)*(MCap!AY$2:AY$356<>0)*(MCap!AY$2:AY$356))
+Cash Dividend		=SUMIF(AdjDiv!$B$2:$B$356,$A16,AdjDiv!AX$2:AX$356)
+Right Share			=SUMIF(AdjRight!$B$2:$B$356,$A16,AdjRight!AX$2:AX$356)
+Adjustments			=AX12+AX14-AX13
+NBFI	=VLOOKUP($A16,16:16,MATCH(MAX($1:$1),$1:$1,0),0)/VLOOKUP($A16,16:16,MATCH(MAX($1:$1),$1:$1,0)-1,0)-1 =AX10/AX11
+	
+=A24&" Market Cap"	=SUMIF(MCap!$B$2:$B$356,$A24,MCap!AX$2:AX$356)
+Divisor				=AW19*((AW18+AW23)/AW18)
+Entry				=SUM((MCap!$B$2:$B$356='Index&Vol'!$A24)*(MCap!AX$2:AX$356=0)*(MCap!AY$2:AY$356<>0)*(MCap!AY$2:AY$356))
+Cash Dividend		=SUMIF(AdjDiv!$B$2:$B$356,$A24,AdjDiv!AX$2:AX$356)
+Right Share			=SUMIF(AdjRight!$B$2:$B$356,$A24,AdjRight!AX$2:AX$356)
+Adjustments			=AX20+AX22-AX21
+Pharmaceuticals	=VLOOKUP($A24,24:24,MATCH(MAX($1:$1),$1:$1,0),0)/VLOOKUP($A24,24:24,MATCH(MAX($1:$1),$1:$1,0)-1,0)-1 =AX18/AX19
+
+***************************   LR Global   ******************************
+Red colored sheets - input(csv) sheets. 
+Light green color sheets - intermediate calculations.
+"Index&Vol" is the final calculation.
+setup a small program written in java_
+1. that takes inputs from red colored sheets and gives the final calculation as output in csv or txt format. - csv read & write.
+2. Relationship between sheets are given as formula in the last column of the sheets.
+3. Your task is to understand the relationship and convert it into a java code. 
+
+! -> Separates the worksheet reference from the cell range reference
+$ -> Makes value absolute. 
+SUM(B2:B5) is relative. But SUM($B$2:$B$5) is absolute
+IFERROR(value,value_if_error) -> IFERROR(B2*B5,0) or IFERROR(B2*B5,"") 
+IF(logical_formula/condition,value_if_true, value_if_false)
+SUMIF(Range,Criteria,Sum_Range) https://www.youtube.com/watch?v=V1acCft4fzY
+
+public class inputCalc(
+	private String ShareNumberAW;
+	private String MultiplierAW;
+}
+
+************************ Input:  'ShareNumber'   ************************
+ShareNumber AX     =IF(Multiplier!AW20="",ShareNumber!AW20,ShareNumber!AW20*(1+Multiplier!AW20))
+************************ Input:  'CDividend'   ************************
+
+************************ Input:  'Multiplier'   ************************
+
+************************ Input:  'RightP'   ************************
+
+public class InterCalc{
+
+	private String ShareNumberAX;	
+	private String CDividendAX;	
+	private String MultiplierAX;
+	private String RightPAX;
+	private String PriceCGJ;
+	private String MCapAW;
+	private String AdjDivAW;
+	private String AdjRightAW;
+	
+	private String TDivisorAV;
+	private String TDivisorAW;
+	
+	//Add getter & setter 
+}
+************************ intermediate calculations:  'AdjDiv'   ************************
+AdjDiv AX  =IFERROR(ShareNumber!AX3*CDividend!AX3,0)
+************************ intermediate calculations:  'AdjRight'   ************************
+AdjRight AX   =IFERROR(ShareNumber!AX3*Multiplier!AX3*RightP!AX3,0)
+************************ intermediate calculations:  'MCap'   ************************
+MCap AX  =IFERROR(Price!CGJ3*ShareNumber!AX3,0)
+************************ intermediate calculations:  'TDivisor'   ************************
+TDivisor AW  =IFERROR(AV3*((MCap!AW3-AdjDiv!AW3+AdjRight!AW3)/MCap!AW3),0)
+************************ intermediate calculations:  'TReturn'   ************************
+TReturn AX   =IFERROR(MCap!AX2/TDivisor!AW2,AW2)
+
+public class FinalCalc{
+	private String MCapB;
+	private String MCapAX;
+	private String MCapAY;
+	
+	private String AdjDivB
+	private String AdjDivAX;
+	
+	private String AdjRightB;
+	private String AdjRightAX;
+	
+	private String IndexVolA;
+	private String IndexVolAW;
+	private String IndexVolAX;
+	
+	private String IndexVolA8;
+	private String IndexVolA16;
+	private String IndexVolA24;
+	
+	private String IndexVolAX2;
+	private String IndexVolAX3;
+	private String IndexVolAX4;
+	private String IndexVolAX5;
+	private String IndexVolAX6;	
+	private String IndexVolAX10;
+	private String IndexVolAX11;
+	private String IndexVolAX12;
+	private String IndexVolAX13;
+	private String IndexVolAX14;
+	private String IndexVolAX18;
+	private String IndexVolAX19;
+	private String IndexVolAX20;
+	private String IndexVolAX21;
+	private String IndexVolAX22;
+	private String IndexVolAW2;
+	private String IndexVolAW3;
+	private String IndexVolAW7;
+	private String IndexVolAW8;
+	private String IndexVolAW10;
+	private String IndexVolAW11;
+	private String IndexVolAW15;
+	private String IndexVolAW18;
+	private String IndexVolAW19;
+	private String IndexVolAW23;
+}
+************************ final calculations:  'Index&Vol'   ************************                                                   
+=A8&" Market Cap"	=SUMIF(MCap!$B$2:$B$356,$A8,MCap!AX$2:AX$356)-> sum of all MCap AX for Bank(A8).
+Divisor				=AW3*((AW2+AW7)/AW2)
+Entry				=SUM((MCap!$B$2:$B$356='Index&Vol'!$A8)*(MCap!AX$2:AX$356=0)*(MCap!AY$2:AY$356<>0)*(MCap!AY$2:AY$356))
+Cash Dividend		=SUMIF(AdjDiv!$B$2:$B$356,$A8,AdjDiv!AX$2:AX$356)
+Right Share			=SUMIF(AdjRight!$B$2:$B$356,$A8,AdjRight!AX$2:AX$356)
+Adjustments			=AX4+AX6-AX5
+Bank	            =AX2/AX3
+	
+=A16&" Market Cap"	=SUMIF(MCap!$B$2:$B$356,$A16,MCap!AX$2:AX$356)-> sum of all MCap AX for NBFI(A16).
+Divisor				=AW11*((AW10+AW15)/AW10)
+Entry				=SUM((MCap!$B$2:$B$356='Index&Vol'!$A16)*(MCap!AX$2:AX$356=0)*(MCap!AY$2:AY$356<>0)*(MCap!AY$2:AY$356))
+Cash Dividend		=SUMIF(AdjDiv!$B$2:$B$356,$A16,AdjDiv!AX$2:AX$356)
+Right Share			=SUMIF(AdjRight!$B$2:$B$356,$A16,AdjRight!AX$2:AX$356)
+Adjustments			=AX12+AX14-AX13
+NBFI	            =AX10/AX11
+	
+=A24&" Market Cap"	=SUMIF(MCap!$B$2:$B$356,$A24,MCap!AX$2:AX$356)-> sum of all MCap AX for Pharmaceuticals(A24).
+Divisor				=AW19*((AW18+AW23)/AW18)
+Entry				=SUM((MCap!$B$2:$B$356='Index&Vol'!$A24)*(MCap!AX$2:AX$356=0)*(MCap!AY$2:AY$356<>0)*(MCap!AY$2:AY$356))
+Cash Dividend		=SUMIF(AdjDiv!$B$2:$B$356,$A24,AdjDiv!AX$2:AX$356)
+Right Share			=SUMIF(AdjRight!$B$2:$B$356,$A24,AdjRight!AX$2:AX$356)
+Adjustments			=AX20+AX22-AX21
+Pharmaceuticals	    =AX18/AX19
+
+CSV files must be_
+
+1. Digit in number format.
+2. - or "" or anything else string/number replace by 0
+3. Row size should keep same. If become less should apply condition.
